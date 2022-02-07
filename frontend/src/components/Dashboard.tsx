@@ -70,7 +70,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const all_users = await await api.get("/users");
+        const all_users = await api.get("/users");
         if (all_users) setUsers(all_users.data);
       } catch (err) {
         console.log(err);
