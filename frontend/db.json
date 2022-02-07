@@ -1,0 +1,44 @@
+{
+  "users": [
+    {
+      "name": "Ross Geller",
+      "email": "tuananhngyen218@gmail.com",
+      "age": 22,
+      "phone_number": "+84949764200",
+      "date_of_birth": "2022-01-13T03:51:26.223Z",
+      "id": "15"
+    },
+    {
+      "name": "Captain Marvel",
+      "email": "ross@gmail.com",
+      "age": 21,
+      "phone_number": "0949764200",
+      "date_of_birth": "2022-01-04T04:18:19.848Z",
+      "id": "16"
+    },
+    {
+      "name": "Iron Man",
+      "email": "iron-man@gmail.com",
+      "age": 49,
+      "phone_number": "0917055658",
+      "date_of_birth": "2022-01-02T04:20:43.433Z",
+      "id": "70"
+    },
+    {
+      "id": "99",
+      "name": "Spiderman",
+      "email": "spiderman@gmail.com",
+      "age": 23,
+      "phone_number": "0914011565",
+      "date_of_birth": "1997-09-20T02:34:33.714Z"
+    },
+    {
+      "name": "Doctor Strange",
+      "email": "strange@gmail.com",
+      "age": 44,
+      "phone_number": "01663113909",
+      "date_of_birth": "2022-01-20T02:53:10.796Z",
+      "id": "88"
+    }
+  ]
+}
