@@ -15,8 +15,8 @@ const register = async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password)
     return res
-      .sendStatus(400)
-      .json({ msg: "Username and password are required !" });
+      .status(400)
+      .json({ msg: "Username and password are required !", success: false });
 
   // check for duplicate users in the db
   const duplicate = accountsDB.users.find(
@@ -24,7 +24,7 @@ const register = async (req, res) => {
   );
 
   if (duplicate)
-    return res.sendStatus(409).json({ msg: "Duplicated Username" }); // conflic status code
+    return res.status(409).json({ success: false, msg: "Duplicated Username" }); // conflic status code
 
   try {
     // encrypt the password
@@ -40,7 +40,9 @@ const register = async (req, res) => {
       JSON.stringify(accountsDB.users)
     );
 
-    res.sendStatus(201).json({ msg: "New account has been created" });
+    res
+      .sendStatus(201)
+      .json({ success: true, msg: "New account has been created" });
   } catch (err) {
     res.sendStatus(500).json({ msg: err.message });
   }
@@ -50,8 +52,8 @@ const login = async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password)
     return res
-      .sendStatus(400)
-      .json({ msg: "Username and password are required !" });
+      .status(400)
+      .json({ success: false, msg: "Username and password are required !" });
 
   // check if the entered username exists
   const found_user = accountsDB.users.find(
@@ -59,7 +61,7 @@ const login = async (req, res) => {
   );
 
   if (!found_user)
-    return res.sendStatus(401).json({ msg: "Account not found" }); // 401: Unauthorized server code
+    return res.status(401).json({ success: false, msg: "Account not found" }); // 401: Unauthorized server code
 
   // evaluate password
   const is_pw_matched = await bcrypt.compare(password, found_user.password);
@@ -70,7 +72,7 @@ const login = async (req, res) => {
         username: found_user.username,
       },
       process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "15m" }
+      { expiresIn: "5m" }
     );
 
     const refresh_token = jwt.sign(
@@ -103,7 +105,7 @@ const login = async (req, res) => {
     // send back to client the success message and the access_token
     res.json({ access_token });
   } else {
-    res.sendStatus(401).json({ msg: "Invalid Password !" });
+    res.status(401).json({ success: false, msg: "Incorrect Password !" });
   }
 };
 
@@ -148,7 +150,13 @@ const logout = async (req, res) => {
 const refreshToken = (req, res) => {
   const cookies = req.cookies;
 
-  if (!cookies?.jwt) return res.sendStatus(401); // Unauthorized
+  console.log(cookies);
+
+  if (!cookies?.jwt)
+    return res.status(401).json({
+      msg: "You are not allowed to perform this action",
+      success: false,
+    }); // Unauthorized
 
   const refresh_token = cookies.jwt;
 
@@ -158,9 +166,10 @@ const refreshToken = (req, res) => {
   );
 
   if (!found_user)
-    return res
-      .sendStatus(403)
-      .json({ msg: "You are not allowed to perform this action" }); // Forbidden
+    return res.status(403).json({
+      msg: "You are not allowed to perform this action",
+      success: false,
+    }); // Forbidden
 
   // evaluate refresh_token
   jwt.verify(
@@ -169,14 +178,14 @@ const refreshToken = (req, res) => {
     (err, decoded_jwt) => {
       if (err || found_user.username !== decoded_jwt.username)
         return res
-          .sendStatus(403)
-          .json({ msg: "You are not allowed to perform this action" });
+          .status(403)
+          .json({ msg: "Refresh Token has expired", success: false });
 
       // once the refresh_token has been verified, send back a new access_token
       const new_access_token = jwt.sign(
         { username: decoded_jwt.username },
         process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: "15m" }
+        { expiresIn: "5m" }
       );
 
       // send back the new access token to client

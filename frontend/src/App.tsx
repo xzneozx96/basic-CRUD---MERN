@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import { useSelector } from "react-redux";
 import { Routes, Route, Navigate } from "react-router-dom";
 
 import {
@@ -7,25 +7,32 @@ import {
   LoginPage,
   DashboardPage,
 } from "./pages/index";
+import { RootState } from "./redux/app-redux";
 
 function App() {
-  return (
-    <Fragment>
-      <main>
-        <Routes>
-          {/* redirect "/" to home page */}
-          <Route path="/" element={<Navigate to="/login" />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignupPage />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/new-user" element={<UserEditorPage />} />
-          <Route path="/user/:userID" element={<UserEditorPage />} />
+  const is_logged_in = useSelector((state: RootState) => state.auth.isLoggedIn);
 
-          {/* redirect no-existing routes to home page */}
-          <Route path="*" element={<Navigate to="/lgoin" />} />
-        </Routes>
-      </main>
-    </Fragment>
+  return (
+    <main>
+      <Routes>
+        {/* redirect "/" to home page */}
+        <Route path="/" element={<Navigate to="/login" />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        {is_logged_in && (
+          <Route path="/dashboard" element={<DashboardPage />} />
+        )}
+        {is_logged_in && (
+          <Route path="/new-user" element={<UserEditorPage />} />
+        )}
+        {is_logged_in && (
+          <Route path="/user/:userID" element={<UserEditorPage />} />
+        )}
+
+        {/* redirect no-existing routes to home page */}
+        <Route path="*" element={<Navigate to="/login" />} />
+      </Routes>
+    </main>
   );
 }
 

@@ -3,11 +3,64 @@ import { Form, Input, Button, Checkbox } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 
+import axios from "../api/api";
+import { useState } from "react";
+
+import jwt_decode from "jwt-decode";
+import { useDispatch } from "react-redux";
+import { authActions } from "../redux/auth-slice";
+
 const Login: React.FC<any> = (props) => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const onLogin = (values: any) => {
-    console.log("Received values of form: ", values);
+  const [err, setErr] = useState(null);
+
+  const calculateDurationSession = (expiresAt: string) => {
+    const now = new Date().getTime();
+    const expires_at = new Date(expiresAt).getTime();
+
+    const remaining_time = expires_at - now;
+    return remaining_time;
+  };
+
+  const onLogin = async (user_input: {
+    username: string;
+    password: string;
+  }) => {
+    try {
+      const res = await axios.post<{ access_token: string }>(
+        `/auth/login`,
+        user_input
+      );
+
+      // get expiration from decoded token
+      const decoded_token = jwt_decode<{ username: string; exp: number }>(
+        res.data.access_token
+      );
+
+      const expires_at = new Date(decoded_token.exp * 1000);
+
+      dispatch(
+        authActions.login({
+          token: res.data.access_token,
+          expiresAt: expires_at.toISOString(),
+        })
+      );
+
+      // start timer for auto-logout
+      const remaining_time = calculateDurationSession(expires_at.toISOString());
+
+      setTimeout(() => {
+        dispatch(authActions.logout());
+      }, remaining_time);
+
+      // re-direct user to dashboard page
+      navigate("/dashboard");
+    } catch (err: any) {
+      let err_msg = err.response.data.msg;
+      setErr(err_msg);
+    }
   };
 
   const registerNavigation = () => {
@@ -70,6 +123,8 @@ const Login: React.FC<any> = (props) => {
           </button>
         </Form.Item>
       </Form>
+
+      {err && <h3 style={{ color: "red", textAlign: "center" }}>{err}</h3>}
     </div>
   );
 };

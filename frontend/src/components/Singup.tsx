@@ -1,17 +1,35 @@
-import React from "react";
+import React, { useState } from "react";
 import { Form, Input, Button } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 
+import axios from "../api/api";
+
 const Signup: React.FC<any> = (props) => {
   const navigate = useNavigate();
 
-  const lgoinNavigation = () => {
+  const [err, setErr] = useState(null);
+
+  const loginNavigation = () => {
     navigate("/login");
   };
 
-  const onRegister = (values: any) => {
-    console.log("Received values of form: ", values);
+  const onRegister = async (user_input: {
+    username: string;
+    password: string;
+  }) => {
+    try {
+      const res = await axios.post<{ msg: string; success: boolean }>(
+        `/auth/register`,
+        user_input
+      );
+
+      // re-direct user to dashboard page
+      loginNavigation();
+    } catch (err: any) {
+      let err_msg = err.response.data.msg;
+      setErr(err_msg);
+    }
   };
 
   return (
@@ -53,7 +71,7 @@ const Signup: React.FC<any> = (props) => {
             Register
           </Button>
           <button
-            onClick={lgoinNavigation}
+            onClick={loginNavigation}
             type="button"
             className="btn register-trigger"
           >
@@ -61,6 +79,8 @@ const Signup: React.FC<any> = (props) => {
           </button>
         </Form.Item>
       </Form>
+
+      {err && <h3 style={{ color: "red", textAlign: "center" }}>{err}</h3>}
     </div>
   );
 };

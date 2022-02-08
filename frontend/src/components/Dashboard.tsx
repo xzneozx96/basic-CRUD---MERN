@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 import { User } from "../models/index";
 
-import api from "../api/users";
+import axios from "../api/api";
 import moment from "moment";
 
 const Dashboard = () => {
@@ -70,7 +70,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const all_users = await api.get("/users");
+        const all_users = await axios.get("/users");
         if (all_users) setUsers(all_users.data);
       } catch (err) {
         console.log(err);
@@ -83,7 +83,7 @@ const Dashboard = () => {
   // delete a user
   const removeUserHandler = async (id: string | undefined) => {
     try {
-      await api.delete(`users/${id}`);
+      await axios.delete(`users/${id}`);
       const updated_list = users.filter((user: User) => user.id !== id);
       setUsers(updated_list);
     } catch (err) {

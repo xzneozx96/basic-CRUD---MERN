@@ -1,6 +1,6 @@
 import { Form, Input, InputNumber, Button, DatePicker, Space } from "antd";
 import { useNavigate } from "react-router-dom";
-import api from "../api/users";
+import api from "../api/api";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import moment from "moment";
@@ -12,6 +12,8 @@ const UserEditor = () => {
   const { userID } = useParams();
 
   const [editMode, setEditMode] = useState(false);
+
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (userID) {
@@ -52,16 +54,20 @@ const UserEditor = () => {
         };
 
         await api.put(`/users/${userID}`, post_data);
+        navigate("/dashboard");
       } else {
         const post_data = {
           id: Math.floor(Math.random() * (100 - 20 + 1) + 20).toString(),
           ...user,
         };
 
-        await api.post("/users", post_data);
+        const res = await api.post("/users", post_data);
+        if (!res.data.success) {
+          setError(res.data.msg);
+          return;
+        }
+        navigate("/dashboard");
       }
-
-      navigate("/dashboard");
     } catch (err) {
       console.log(err);
     }
@@ -109,6 +115,11 @@ const UserEditor = () => {
       >
         <DatePicker format={dateFormat} />
       </Form.Item>
+      {error && (
+        <Form.Item label="Error">
+          <p style={{ color: "red", marginBottom: 0 }}>{error}</p>
+        </Form.Item>
+      )}
       <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
         <Space>
           <Button type="primary" htmlType="submit">
