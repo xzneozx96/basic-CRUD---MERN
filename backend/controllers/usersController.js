@@ -45,13 +45,17 @@ const createNewUser = async (req, res) => {
   );
 
   if (duplicated_name)
-    return res.json({ success: false, msg: "Username has been used" });
+    return res
+      .status(409)
+      .json({ success: false, msg: "Username has been used" });
 
   if (duplicated_email)
-    return res.json({ success: false, msg: "Email has been used" });
+    return res.status(409).json({ success: false, msg: "Email has been used" });
 
   if (duplicated_phone)
-    return res.json({ success: false, msg: "Phone number has been used" });
+    return res
+      .status(409)
+      .json({ success: false, msg: "Phone number has been used" });
 
   const new_user = { id, name, email, age, phone_number, date_of_birth };
 

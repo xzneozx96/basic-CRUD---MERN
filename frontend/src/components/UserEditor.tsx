@@ -1,15 +1,18 @@
 import { Form, Input, InputNumber, Button, DatePicker, Space } from "antd";
+
 import { useNavigate } from "react-router-dom";
-import api from "../api/api";
 import { useParams } from "react-router-dom";
+
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import moment from "moment";
 import { addNewUserAction, updateUserAction } from "../redux/users-slice";
+import { useStoreDispatch } from "../redux/app-redux";
+
+import moment from "moment";
+import api from "../api/api";
 
 const UserEditor = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const dispatch = useStoreDispatch();
 
   const [form] = Form.useForm();
 
@@ -58,18 +61,28 @@ const UserEditor = () => {
         };
 
         // await api.put(`/users/${userID}`, post_data);
-        dispatch(updateUserAction({ userID, updated_user }));
-
-        navigate("/dashboard");
+        await dispatch(updateUserAction({ userID, updated_user }))
+          .unwrap()
+          .then(() => {
+            navigate("/dashboard");
+          });
+        // .catch((err) => {
+        //   setError(err);
+        // });
       } else {
         const new_user = {
           id: Math.floor(Math.random() * (100 - 20 + 1) + 20).toString(),
           ...user,
         };
 
-        dispatch(addNewUserAction(new_user));
-
-        navigate("/dashboard");
+        await dispatch(addNewUserAction(new_user))
+          .unwrap()
+          .then(() => {
+            navigate("/dashboard");
+          })
+          .catch((err) => {
+            setError(err);
+          });
       }
     } catch (err) {
       console.log(err);

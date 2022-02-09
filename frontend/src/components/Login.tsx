@@ -51,8 +51,10 @@ const Login: React.FC<any> = (props) => {
       // start timer for auto-logout
       const remaining_time = calculateDurationSession(expires_at.toISOString());
 
-      setTimeout(() => {
+      let timer = setTimeout(() => {
         dispatch(authActions.logout());
+        navigate("/login");
+        clearTimeout(timer);
       }, remaining_time);
 
       // re-direct user to dashboard page

@@ -10,36 +10,40 @@ export const getAllUsersAction = createAsyncThunk(
       const res = await axios.get("/users");
       if (res) {
         const all_users = res.data;
-        console.log(all_users);
 
         return { all_users };
       }
-    } catch (err) {
-      console.log(err);
+    } catch (err: any) {
+      console.log(err.response.data.msg);
     }
   }
 );
 
 export const addNewUserAction = createAsyncThunk(
   "users/newUser",
-  async (user: User) => {
-    const new_user = user;
-
-    const res = await axios.post("/users", new_user);
-    if (res.data.success) {
+  async (user: User, { rejectWithValue }) => {
+    try {
+      const new_user = user;
+      await axios.post("/users", new_user);
       return { new_user };
+    } catch (err: any) {
+      return rejectWithValue(err.response.data.msg);
     }
   }
 );
 
 export const updateUserAction = createAsyncThunk(
   "users/updateUser",
-  async (payload: { userID: string | undefined; updated_user: User }) => {
-    const { userID, updated_user } = payload;
-
-    const res = await axios.put(`/users/${userID}`, updated_user);
-    if (res.data.success) {
+  async (
+    payload: { userID: string | undefined; updated_user: User },
+    { rejectWithValue }
+  ) => {
+    try {
+      const { userID, updated_user } = payload;
+      await axios.put(`/users/${userID}`, updated_user);
       return { updated_user };
+    } catch (err: any) {
+      return rejectWithValue(err.response.data.msg);
     }
   }
 );
@@ -54,36 +58,39 @@ export const deleteUserAction = createAsyncThunk(
   }
 );
 
-const initialUserState: User[] = [];
+const initialUserState: {
+  users: User[];
+} = { users: [] };
 
 const usersSlice = createSlice({
   name: "Users",
   initialState: initialUserState,
 
-  // below includes reducers that handle sync action
+  // below includes reducers that handle sync actions
   reducers: {},
 
-  // below includes reducers that handle async action
+  // below includes reducers that handle async actions
   extraReducers: (builder) => {
-    builder.addCase(getAllUsersAction.pending, (state, action) => {
+    builder.addCase(getAllUsersAction.pending, () => {
       // we can show loading spinner here
       console.log("fetching users ...");
     });
 
     builder.addCase(getAllUsersAction.fulfilled, (state, action) => {
-      return action.payload?.all_users;
+      state.users = action.payload!.all_users;
     });
 
+    // handle add new user action
     builder.addCase(addNewUserAction.fulfilled, (state, action) => {
-      const new_state = [...state, action.payload!.new_user];
-      return new_state;
+      state.users.push(action.payload!.new_user);
     });
 
+    // handle delete user action
     builder.addCase(deleteUserAction.fulfilled, (state, action) => {
-      const updated_users = state.filter(
+      const updated_users = state.users.filter(
         (user: User) => user.id !== action.payload!.id
       );
-      return updated_users;
+      state.users = updated_users;
     });
   },
 });
