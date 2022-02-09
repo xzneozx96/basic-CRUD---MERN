@@ -1,7 +1,16 @@
+const sendEmail = require("../utils/sendEmail");
+
 const accountsDB = {
   users: require("../database/accounts.json"),
   setAccounts: function (data) {
     this.users = data;
+  },
+};
+
+const resetPwRecordsDB = {
+  records: require("../database/resetPW.json"),
+  setRecords: function (data) {
+    this.records = data;
   },
 };
 
@@ -194,4 +203,98 @@ const refreshToken = (req, res) => {
   );
 };
 
-module.exports = { register, login, refreshToken, logout };
+const forgotPW = (req, res) => {
+  const { email, username } = req.body;
+
+  // check if username is in the db
+  const found_user = accountsDB.users.find(
+    (person) => person.username === username
+  );
+
+  // username doesn't exist
+  if (!found_user)
+    return res.status(404).json({ success: false, msg: "Username not found" });
+
+  // username exists => save a record for reset-pw then send reset link to user via email
+  // actually send email
+  sendEmail({ email, user_id: found_user.id }, res);
+};
+
+const resetPW = (req, res) => {
+  const { user_id, reset_token, new_pw } = req.body;
+
+  // check if there is a resetPW record of the user with id === user_id
+  const found_record = resetPwRecordsDB.records.find(
+    (record) => record.user_id === user_id
+  );
+
+  // record doesn't exist
+  if (!found_record)
+    res.status(403).json({
+      success: false,
+      msg: "You are not allowed to perform this action !",
+    });
+
+  // record does exist
+  // 1. check if the token has expired
+  jwt.verify(
+    reset_token,
+    process.env.RESET_PW_SECRET,
+    async (err, decoded_token) => {
+      try {
+        // reset_token has expired
+        if (err) {
+          // delete the reset-pw record in the db
+          const other_records = resetPwRecordsDB.records.filter(
+            (record) => record.user_id !== user_id
+          );
+
+          resetPwRecordsDB.setRecords([...other_records]);
+
+          await fsPromises.writeFile(
+            path.join(__dirname, "..", "database", "resetPW.json"),
+            JSON.stringify(resetPwRecordsDB.records)
+          );
+
+          // notify user
+          return res.status(403).json({
+            msg: "Verification Link has expired!",
+          });
+        }
+
+        // reset_token is still valid => hash the new pw then update accounts db
+        // hash new pw
+        const new_hashed_pw = await bcrypt.hash(new_pw, 10);
+
+        // update db
+        const updated_accounts = accountsDB.users.map((account) => {
+          if (account.id === user_id) {
+            return { ...account, password: new_hashed_pw };
+          }
+          return account;
+        });
+
+        accountsDB.setAccounts([...updated_accounts]);
+
+        await fsPromises.writeFile(
+          path.join(__dirname, "..", "database", "accounts.json"),
+          JSON.stringify(accountsDB.users)
+        );
+
+        // send back success message
+        res.status(200).json({
+          success: true,
+          msg: "You password has been reset",
+        });
+      } catch (error) {
+        console.log(error);
+        res.status(500).json({
+          success: false,
+          msg: "Internal Server Error ! Record Deletion Falied !",
+        });
+      }
+    }
+  );
+};
+
+module.exports = { register, login, refreshToken, logout, forgotPW, resetPW };

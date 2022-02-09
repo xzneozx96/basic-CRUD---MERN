@@ -6,6 +6,8 @@ import {
   SignupPage,
   LoginPage,
   DashboardPage,
+  ForgotPwPage,
+  ResetPwPage,
 } from "./pages/index";
 import { RootState } from "./redux/app-redux";
 
@@ -19,6 +21,12 @@ function App() {
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
+        <Route path="/forgot-pw" element={<ForgotPwPage />} />
+        <Route
+          path="/reset-pw/:user_id/:reset_token"
+          element={<ResetPwPage />}
+        />
+
         {is_logged_in && (
           <Route path="/dashboard" element={<DashboardPage />} />
         )}

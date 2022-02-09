@@ -3,10 +3,14 @@ import { useNavigate } from "react-router-dom";
 import api from "../api/api";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import moment from "moment";
+import { addNewUserAction, updateUserAction } from "../redux/users-slice";
 
 const UserEditor = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
   const [form] = Form.useForm();
 
   const { userID } = useParams();
@@ -49,23 +53,22 @@ const UserEditor = () => {
   const onFinish = async (user: any) => {
     try {
       if (editMode) {
-        const post_data = {
+        const updated_user = {
           ...user,
         };
 
-        await api.put(`/users/${userID}`, post_data);
+        // await api.put(`/users/${userID}`, post_data);
+        dispatch(updateUserAction({ userID, updated_user }));
+
         navigate("/dashboard");
       } else {
-        const post_data = {
+        const new_user = {
           id: Math.floor(Math.random() * (100 - 20 + 1) + 20).toString(),
           ...user,
         };
 
-        const res = await api.post("/users", post_data);
-        if (!res.data.success) {
-          setError(res.data.msg);
-          return;
-        }
+        dispatch(addNewUserAction(new_user));
+
         navigate("/dashboard");
       }
     } catch (err) {

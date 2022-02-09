@@ -110,7 +110,7 @@ const deleteUser = async (req, res) => {
     JSON.stringify(updated_users)
   );
 
-  return res.json({ msg: "User has been deleted" });
+  return res.json({ msg: "User has been deleted", success: true });
 };
 
 module.exports = {

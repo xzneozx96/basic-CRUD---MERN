@@ -1,15 +1,20 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { authReducers } from "./auth-slice";
+import { usersReducers } from "./users-slice";
 
-// we configure our Store as following in case there is only 1 slice
-// const store = configureStore({ reducer: foodStoreSlice.reducer });
-
-// we configure our Store as following in case there are multiple slices
 const store = configureStore({
   reducer: {
-    // cart: cartReducers,
     auth: authReducers,
+    users: usersReducers,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      // allow Non-Serializable Data
+      serializableCheck: {
+        // Ignore these action types
+        ignoredActions: ["users/newUser/fulfilled"],
+      },
+    }),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

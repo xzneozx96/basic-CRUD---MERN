@@ -1,18 +1,22 @@
 import { Table, Space, Button } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { User } from "../models/index";
 
-import axios from "../api/api";
 import moment from "moment";
 
+import { useDispatch, useSelector } from "react-redux";
+import { getAllUsersAction, deleteUserAction } from "../redux/users-slice";
+import { RootState } from "../redux/app-redux";
+
 const Dashboard = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const [users, setUsers] = useState<User[]>([]);
+  const users = useSelector((state: RootState) => state.users);
 
   const columns = [
     {
@@ -68,27 +72,12 @@ const Dashboard = () => {
 
   // get users data from JSON server
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const all_users = await axios.get("/users");
-        if (all_users) setUsers(all_users.data);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-
-    fetchUsers();
-  }, []);
+    dispatch(getAllUsersAction());
+  }, [dispatch]);
 
   // delete a user
-  const removeUserHandler = async (id: string | undefined) => {
-    try {
-      await axios.delete(`users/${id}`);
-      const updated_list = users.filter((user: User) => user.id !== id);
-      setUsers(updated_list);
-    } catch (err) {
-      console.log(err);
-    }
+  const removeUserHandler = (id: string | undefined) => {
+    dispatch(deleteUserAction(id));
   };
 
   // create new user

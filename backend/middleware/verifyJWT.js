@@ -3,7 +3,6 @@ require("dotenv").config();
 
 const verifyJWT = (req, res, next) => {
   const auth_header = req.headers["authorization"]; // Bearer access_token
-  console.log(auth_header);
 
   if (!auth_header) return res.status(401).json({ msg: "Unauthorized" });
 

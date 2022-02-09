@@ -67,6 +67,10 @@ const Login: React.FC<any> = (props) => {
     navigate("/signup");
   };
 
+  const forgotPwNavigation = () => {
+    navigate("/forgot-pw");
+  };
+
   return (
     <div className="form-wrapper">
       <Form
@@ -101,7 +105,11 @@ const Login: React.FC<any> = (props) => {
             <Checkbox>Remember me</Checkbox>
           </Form.Item>
 
-          <button type="button" className="login-form-forgot btn">
+          <button
+            type="button"
+            className="login-form-forgot btn"
+            onClick={forgotPwNavigation}
+          >
             Forgot password
           </button>
         </Form.Item>
