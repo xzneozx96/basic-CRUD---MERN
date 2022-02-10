@@ -67,13 +67,15 @@ const usersSlice = createSlice({
   initialState: initialUserState,
 
   // below includes reducers that handle sync actions
-  reducers: {},
+  reducers: {
+    addUser(state, action) {},
+  },
 
   // below includes reducers that handle async actions
   extraReducers: (builder) => {
     builder.addCase(getAllUsersAction.pending, () => {
       // we can show loading spinner here
-      console.log("fetching users ...");
+      // console.log("fetching users ...");
     });
 
     builder.addCase(getAllUsersAction.fulfilled, (state, action) => {

@@ -108,6 +108,8 @@ const login = async (req, res) => {
     // send back to client the refresh_token securely via "httpOnly" which is not available to javascript - cookies must be sent right before the json in order to succeed
     res.cookie("jwt", refresh_token, {
       httpOnly: true,
+      secure: true,
+      sameSite: "None",
       maxAage: 24 * 60 * 60 * 1000, // equal to 1 day in milliseconds
     });
 
@@ -151,15 +153,13 @@ const logout = async (req, res) => {
     JSON.stringify(accountsDB.users)
   );
 
-  res.clearCookie("jwt", { httpOnly: true });
+  res.clearCookie("jwt", { httpOnly: true, secure: true, sameSite: "None" });
 
   res.sendStatus(204);
 };
 
 const refreshToken = (req, res) => {
   const cookies = req.cookies;
-
-  console.log(cookies);
 
   if (!cookies?.jwt)
     return res.status(401).json({

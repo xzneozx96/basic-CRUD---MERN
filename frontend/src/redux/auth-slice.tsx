@@ -1,4 +1,5 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import axios from "../api/api";
 
 const calculateDurationSession = (expiresAt: string) => {
   const now = new Date().getTime();
@@ -26,32 +27,44 @@ const getStoredData = () => {
 const storedData = getStoredData();
 
 const initialAuthState = {
-  isLoggedIn: storedData?.token || false,
+  isLoggedIn: storedData?.token ? true : false,
   token: storedData?.token || null,
 };
 
+export const refreshToken = createAsyncThunk(`auth/refreshToken`, async () => {
+  const res = await axios.get<{ access_token: string }>(`auth/refreshToken`);
+  return res.data.access_token;
+});
+
 const authSlice = createSlice({
-  name: "Auth",
+  name: "auth",
   initialState: initialAuthState,
   reducers: {
     login(state, action) {
-      const new_state = {
-        isLoggedIn: true,
-        token: action.payload.token,
-      };
+      state.isLoggedIn = true;
+      state.token = action.payload.token;
 
       localStorage.setItem("token", action.payload.token);
       localStorage.setItem("expiresAt", action.payload.expiresAt);
-
-      return new_state;
     },
 
-    logout() {
+    logout(state) {
       localStorage.removeItem("token");
       localStorage.removeItem("expiresAt");
 
-      return { isLoggedIn: false, token: null };
+      state.isLoggedIn = false;
+      state.token = null;
     },
+  },
+
+  extraReducers: (builder) => {
+    builder.addCase(refreshToken.fulfilled, (state, action) => {
+      const new_token = action.payload;
+
+      localStorage.setItem("token", new_token);
+      state.isLoggedIn = true;
+      state.token = new_token;
+    });
   },
 });
 

@@ -1,6 +1,6 @@
-import { useSelector } from "react-redux";
 import { Routes, Route, Navigate } from "react-router-dom";
 
+import RequireAuth from "./components/RequireAuth";
 import {
   UserEditorPage,
   SignupPage,
@@ -9,11 +9,8 @@ import {
   ForgotPwPage,
   ResetPwPage,
 } from "./pages/index";
-import { RootState } from "./redux/app-redux";
 
 function App() {
-  const is_logged_in = useSelector((state: RootState) => state.auth.isLoggedIn);
-
   return (
     <main>
       <Routes>
@@ -27,15 +24,12 @@ function App() {
           element={<ResetPwPage />}
         />
 
-        {is_logged_in && (
+        {/* RequireAuth components behaves like a route guard */}
+        <Route element={<RequireAuth />}>
           <Route path="/dashboard" element={<DashboardPage />} />
-        )}
-        {is_logged_in && (
           <Route path="/new-user" element={<UserEditorPage />} />
-        )}
-        {is_logged_in && (
           <Route path="/user/:userID" element={<UserEditorPage />} />
-        )}
+        </Route>
 
         {/* redirect no-existing routes to home page */}
         <Route path="*" element={<Navigate to="/login" />} />

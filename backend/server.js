@@ -8,7 +8,11 @@ const PORT = process.env.PORT || 3500;
 const verifyJWT = require("./middleware/verifyJWT");
 
 // cross origin resource sharing
-app.use(cors());
+const corsOptions = {
+  origin: "http://localhost:3000",
+  credentials: true, //access-control-allow-credentials:true
+};
+app.use(cors(corsOptions));
 
 // built-in middleware to handle url-encoded data - also called form data so to say
 app.use(express.urlencoded({ extended: false }));

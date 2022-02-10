@@ -49,13 +49,13 @@ const Login: React.FC<any> = (props) => {
       );
 
       // start timer for auto-logout
-      const remaining_time = calculateDurationSession(expires_at.toISOString());
+      // const remaining_time = calculateDurationSession(expires_at.toISOString());
 
-      let timer = setTimeout(() => {
-        dispatch(authActions.logout());
-        navigate("/login");
-        clearTimeout(timer);
-      }, remaining_time);
+      // let timer = setTimeout(() => {
+      //   dispatch(authActions.logout());
+      //   navigate("/login");
+      //   clearTimeout(timer);
+      // }, remaining_time);
 
       // re-direct user to dashboard page
       navigate("/dashboard");
@@ -124,6 +124,7 @@ const Login: React.FC<any> = (props) => {
           >
             Log in
           </Button>
+
           <button
             onClick={registerNavigation}
             type="button"

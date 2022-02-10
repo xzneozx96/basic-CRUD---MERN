@@ -1,7 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
+import { useDispatch } from "react-redux";
 import { authReducers } from "./auth-slice";
 import { usersReducers } from "./users-slice";
-import { useDispatch } from "react-redux";
 
 const store = configureStore({
   reducer: {
@@ -30,5 +30,6 @@ const store = configureStore({
 
 export type RootState = ReturnType<typeof store.getState>;
 export type StoreDispatch = typeof store.dispatch;
+
 export const useStoreDispatch = () => useDispatch<StoreDispatch>();
 export default store;
