@@ -3,64 +3,27 @@ import { Form, Input, Button, Checkbox } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 
-import axios from "../api/api";
 import { useState } from "react";
 
-import jwt_decode from "jwt-decode";
-import { useDispatch } from "react-redux";
-import { authActions } from "../redux/auth-slice";
+import { useStoreDispatch } from "../redux/app-redux";
+import { login } from "../redux/auth-slice";
 
 const Login: React.FC<any> = (props) => {
-  const dispatch = useDispatch();
+  const dispatch = useStoreDispatch();
   const navigate = useNavigate();
 
   const [err, setErr] = useState(null);
-
-  const calculateDurationSession = (expiresAt: string) => {
-    const now = new Date().getTime();
-    const expires_at = new Date(expiresAt).getTime();
-
-    const remaining_time = expires_at - now;
-    return remaining_time;
-  };
 
   const onLogin = async (user_input: {
     username: string;
     password: string;
   }) => {
     try {
-      const res = await axios.post<{ access_token: string }>(
-        `/auth/login`,
-        user_input
-      );
-
-      // get expiration from decoded token
-      const decoded_token = jwt_decode<{ username: string; exp: number }>(
-        res.data.access_token
-      );
-
-      const expires_at = new Date(decoded_token.exp * 1000);
-
-      dispatch(
-        authActions.login({
-          token: res.data.access_token,
-          expiresAt: expires_at.toISOString(),
-        })
-      );
-
-      // start timer for auto-logout
-      // const remaining_time = calculateDurationSession(expires_at.toISOString());
-
-      // let timer = setTimeout(() => {
-      //   dispatch(authActions.logout());
-      //   navigate("/login");
-      //   clearTimeout(timer);
-      // }, remaining_time);
+      await dispatch(login(user_input)).unwrap();
 
       // re-direct user to dashboard page
       navigate("/dashboard");
-    } catch (err: any) {
-      let err_msg = err.response.data.msg;
+    } catch (err_msg: any) {
       setErr(err_msg);
     }
   };

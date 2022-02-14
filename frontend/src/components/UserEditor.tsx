@@ -60,32 +60,21 @@ const UserEditor = () => {
           ...user,
         };
 
-        // await api.put(`/users/${userID}`, post_data);
-        await dispatch(updateUserAction({ userID, updated_user }))
-          .unwrap()
-          .then(() => {
-            navigate("/dashboard");
-          });
-        // .catch((err) => {
-        //   setError(err);
-        // });
+        await dispatch(updateUserAction({ userID, updated_user })).unwrap();
+
+        navigate("/dashboard");
       } else {
         const new_user = {
           id: Math.floor(Math.random() * (100 - 20 + 1) + 20).toString(),
           ...user,
         };
 
-        await dispatch(addNewUserAction(new_user))
-          .unwrap()
-          .then(() => {
-            navigate("/dashboard");
-          })
-          .catch((err) => {
-            setError(err);
-          });
+        await dispatch(addNewUserAction(new_user)).unwrap();
+
+        navigate("/dashboard");
       }
-    } catch (err) {
-      console.log(err);
+    } catch (err_msg: any) {
+      setError(err_msg);
     }
   };
 

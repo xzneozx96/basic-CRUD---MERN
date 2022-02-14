@@ -9,8 +9,9 @@ import { User } from "../models/index";
 import moment from "moment";
 
 import { useDispatch, useSelector } from "react-redux";
-import { getAllUsersAction, deleteUserAction } from "../redux/users-slice";
 import { RootState } from "../redux/app-redux";
+import { getAllUsersAction, deleteUserAction } from "../redux/users-slice";
+import { logout } from "../redux/auth-slice";
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -90,13 +91,23 @@ const Dashboard = () => {
     navigate(`/user/${id}`);
   };
 
+  // log out
+  const onLogout = () => {
+    dispatch(logout());
+  };
+
   return (
     <div className="table-wrapper">
       <div className="table-heading">
         <h1>Users List</h1>
-        <Button type="primary" htmlType="button" onClick={createUserHandler}>
-          New User
-        </Button>
+        <Space>
+          <Button type="primary" htmlType="button" onClick={createUserHandler}>
+            New User
+          </Button>
+          <Button type="primary" danger htmlType="button" onClick={onLogout}>
+            Log Out
+          </Button>
+        </Space>
       </div>
       {users.length > 0 && (
         <Table rowKey="id" columns={columns} dataSource={users} />

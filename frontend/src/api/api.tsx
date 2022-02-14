@@ -1,5 +1,5 @@
 import axios from "axios";
-import { refreshToken } from "../redux/auth-slice";
+import { refreshToken, logout } from "../redux/auth-slice";
 
 const baseURL = "http://localhost:3500/";
 
@@ -26,17 +26,20 @@ axiosInstance.interceptors.response.use(
     // handling the case when request is forbidden or not sent to prevent endless loop => make sure to re-try the request once
     // if the token has expired, all subsequent request will response with status code of 403. When this happen, we dispatch the refreshToken action to get a new token
     if (err.response.status === 403 && !prev_req.sent) {
-      await store
-        .dispatch(refreshToken())
-        .unwrap()
-        .then((new_token: string) => {
-          prev_req.headers["Authorization"] = `Bearer ${new_token}`;
-        });
+      // handle situation when refresh token has expired
+      if (err.response.data.msg === "Refresh Token has expired") {
+        store.dispatch(logout());
+        return Promise.reject(err);
+      }
 
-      return axiosInstance(prev_req);
+      // handle situation when new token has been returned
+      const new_token = await store.dispatch(refreshToken()).unwrap();
+
+      if (new_token) {
+        prev_req.headers["Authorization"] = `Bearer ${new_token}`;
+        return axiosInstance(prev_req);
+      }
     }
-
-    return Promise.reject(err);
   }
 );
 
