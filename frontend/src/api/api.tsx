@@ -26,6 +26,8 @@ axiosInstance.interceptors.response.use(
     // handling the case when request is forbidden or not sent to prevent endless loop => make sure to re-try the request once
     // if the token has expired, all subsequent request will response with status code of 403. When this happen, we dispatch the refreshToken action to get a new token
     if (err.response.status === 403 && !prev_req.sent) {
+      prev_req.sent = true;
+
       // handle situation when refresh token has expired
       if (err.response.data.msg === "Refresh Token has expired") {
         store.dispatch(logout());
@@ -39,6 +41,8 @@ axiosInstance.interceptors.response.use(
         prev_req.headers["Authorization"] = `Bearer ${new_token}`;
         return axiosInstance(prev_req);
       }
+    } else {
+      return Promise.reject(err);
     }
   }
 );

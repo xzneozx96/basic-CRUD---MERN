@@ -5,16 +5,27 @@ import { User } from "../models";
 // getAllUsers is just an action (asycn action)
 export const getAllUsersAction = createAsyncThunk(
   "users/getAllUsers",
-  async () => {
+  async (_, { rejectWithValue }) => {
     try {
       const res = await axios.get("/users");
       if (res) {
         const all_users = res.data;
-
         return { all_users };
       }
     } catch (err: any) {
-      console.log(err.response.data.msg);
+      return rejectWithValue(err.response.data.msg);
+    }
+  }
+);
+
+export const getSingleUserAction = createAsyncThunk(
+  "users/getSingleUser",
+  async (user_id: string, { rejectWithValue }) => {
+    try {
+      const res = await axios.get(`/users/${user_id}`);
+      return res.data;
+    } catch (err: any) {
+      return rejectWithValue(err.response.data.msg);
     }
   }
 );
@@ -22,8 +33,9 @@ export const getAllUsersAction = createAsyncThunk(
 export const addNewUserAction = createAsyncThunk(
   "users/newUser",
   async (user: User, { rejectWithValue }) => {
+    const new_user = user;
+
     try {
-      const new_user = user;
       await axios.post("/users", new_user);
       return { new_user };
     } catch (err: any) {
@@ -63,13 +75,11 @@ const initialUserState: {
 } = { users: [] };
 
 const usersSlice = createSlice({
-  name: "Users",
+  name: "users",
   initialState: initialUserState,
 
   // below includes reducers that handle sync actions
-  reducers: {
-    addUser(state, action) {},
-  },
+  reducers: {},
 
   // below includes reducers that handle async actions
   extraReducers: (builder) => {
@@ -97,5 +107,4 @@ const usersSlice = createSlice({
   },
 });
 
-export const usersActions = usersSlice.actions;
 export const usersReducers = usersSlice.reducer;
