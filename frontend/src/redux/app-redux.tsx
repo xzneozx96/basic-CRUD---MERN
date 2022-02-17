@@ -3,11 +3,6 @@ import { useDispatch } from "react-redux";
 import { authReducers } from "./auth-slice";
 import { usersReducers } from "./users-slice";
 
-import createsagaMiddleware from "@redux-saga/core";
-import rootSaga from "../saga/rootSaga";
-
-const sagaMiddleware = createsagaMiddleware();
-
 const store = configureStore({
   reducer: {
     auth: authReducers,
@@ -17,10 +12,8 @@ const store = configureStore({
     getDefaultMiddleware({
       // allow Non-Serializable Data
       serializableCheck: false,
-    }).concat(sagaMiddleware),
+    }),
 });
-
-sagaMiddleware.run(rootSaga);
 
 export type RootState = ReturnType<typeof store.getState>;
 export type StoreDispatch = typeof store.dispatch;
