@@ -2,27 +2,11 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "../api/api";
 import jwt_decode from "jwt-decode";
 
-const calculateDurationSession = (expiresAt: string) => {
-  const now = new Date().getTime();
-  const expires_at = new Date(expiresAt).getTime();
-
-  const remaining_time = expires_at - now;
-  return remaining_time;
-};
-
 const getStoredData = () => {
   const token = localStorage.getItem("token");
   const expiresAt = localStorage.getItem("expiresAt") || "";
 
-  const remaining_time = calculateDurationSession(expiresAt);
-  if (remaining_time <= 3600) {
-    localStorage.removeItem("token");
-    localStorage.removeItem("expiresAt");
-
-    return null;
-  } else {
-    return { token: token, expiresAt: expiresAt };
-  }
+  return { token, expiresAt };
 };
 
 const storedData = getStoredData();
@@ -44,6 +28,21 @@ export const login = createAsyncThunk(
         user_input
       );
 
+      return res.data;
+    } catch (err: any) {
+      return rejectWithValue(err.response.data.msg);
+    }
+  }
+);
+
+export const register = createAsyncThunk(
+  "/auth/register",
+  async (
+    user_input: { username: string; password: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const res = await axios.post(`/auth/register`, user_input);
       return res.data;
     } catch (err: any) {
       return rejectWithValue(err.response.data.msg);

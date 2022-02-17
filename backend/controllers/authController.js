@@ -81,7 +81,7 @@ const login = async (req, res) => {
         username: found_user.username,
       },
       process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "5s" }
+      { expiresIn: "5m" }
     );
 
     const refresh_token = jwt.sign(
@@ -89,7 +89,7 @@ const login = async (req, res) => {
         username: found_user.username,
       },
       process.env.REFRESH_TOKEN_SECRET,
-      { expiresIn: "10s" }
+      { expiresIn: "1d" }
     );
 
     // save refresh_token of the recently logged-in user to database
@@ -194,7 +194,7 @@ const refreshToken = (req, res) => {
       const new_access_token = jwt.sign(
         { username: decoded_jwt.username },
         process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: "5s" }
+        { expiresIn: "5m" }
       );
 
       // send back the new access token to client
