@@ -3,6 +3,11 @@ import { useDispatch } from "react-redux";
 import { authReducers } from "./auth-slice";
 import { usersReducers } from "./users-slice";
 
+import createsagaMiddleware from "@redux-saga/core";
+import rootSaga from "../saga/rootSaga";
+
+const sagaMiddleware = createsagaMiddleware();
+
 const store = configureStore({
   reducer: {
     auth: authReducers,
@@ -11,22 +16,11 @@ const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       // allow Non-Serializable Data
-      serializableCheck: {
-        // Ignore these action types
-        ignoredActions: [
-          "users/newUser/pending",
-          "users/newUser/fulfilled",
-          "users/newUser/rejected",
-          "users/getAllUsers/pending",
-          "users/getAllUsers/fulfilled",
-          "users/getAllUsers/rejected",
-          "users/updateUser/pending",
-          "users/updateUser/fulfilled",
-          "users/updateUser/rejected",
-        ],
-      },
-    }),
+      serializableCheck: false,
+    }).concat(sagaMiddleware),
 });
+
+sagaMiddleware.run(rootSaga);
 
 export type RootState = ReturnType<typeof store.getState>;
 export type StoreDispatch = typeof store.dispatch;
