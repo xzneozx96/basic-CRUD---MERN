@@ -1,17 +1,13 @@
-import { Form, Input, Button, Checkbox } from "antd";
-import { UserOutlined, LockOutlined } from "@ant-design/icons";
+import { LockOutlined, UserOutlined } from "@ant-design/icons";
+import { Button, Checkbox, Form, Input } from "antd";
 import { useNavigate } from "react-router-dom";
-
-import { useState } from "react";
-
 import { useStoreDispatch } from "../redux/app-redux";
 import { login } from "../redux/auth-slice";
+import { openErrNotification } from "../utils/errorNoti";
 
 export const LoginPage = () => {
   const dispatch = useStoreDispatch();
   const navigate = useNavigate();
-
-  const [err, setErr] = useState(null);
 
   const onLogin = async (user_input: {
     username: string;
@@ -23,7 +19,7 @@ export const LoginPage = () => {
       // re-direct user to dashboard page
       navigate("/dashboard");
     } catch (err_msg: any) {
-      setErr(err_msg);
+      openErrNotification(err_msg);
     }
   };
 
@@ -98,8 +94,6 @@ export const LoginPage = () => {
           </button>
         </Form.Item>
       </Form>
-
-      {err && <h3 style={{ color: "red", textAlign: "center" }}>{err}</h3>}
     </div>
   );
 };

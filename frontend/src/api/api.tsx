@@ -1,5 +1,5 @@
 import axios from "axios";
-import { refreshToken, logout } from "../redux/auth-slice";
+import { logout, refreshToken } from "../redux/auth-slice";
 
 const baseURL = "http://localhost:3500/";
 

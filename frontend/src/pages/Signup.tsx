@@ -1,15 +1,13 @@
-import { useState } from "react";
-import { Form, Input, Button } from "antd";
-import { UserOutlined, LockOutlined } from "@ant-design/icons";
+import { LockOutlined, UserOutlined } from "@ant-design/icons";
+import { Button, Form, Input } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useStoreDispatch } from "../redux/app-redux";
 import { register } from "../redux/auth-slice";
+import { openErrNotification } from "../utils/errorNoti";
 
 export const SignupPage = () => {
   const navigate = useNavigate();
   const dispatch = useStoreDispatch();
-
-  const [err, setErr] = useState(null);
 
   const loginNavigation = () => {
     navigate("/login");
@@ -25,7 +23,7 @@ export const SignupPage = () => {
       // re-direct user to dashboard page
       loginNavigation();
     } catch (err_msg: any) {
-      setErr(err_msg);
+      openErrNotification(err_msg);
     }
   };
 
@@ -76,8 +74,6 @@ export const SignupPage = () => {
           </button>
         </Form.Item>
       </Form>
-
-      {err && <h3 style={{ color: "red", textAlign: "center" }}>{err}</h3>}
     </div>
   );
 };

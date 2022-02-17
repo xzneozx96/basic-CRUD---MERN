@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "../api/api";
 import jwt_decode from "jwt-decode";
+import axios from "../api/api";
 
 const getStoredData = () => {
   const token = localStorage.getItem("token");
@@ -88,7 +88,7 @@ const authSlice = createSlice({
       localStorage.setItem("expiresAt", expires_at);
     });
 
-    builder.addCase(logout.fulfilled, (state, action) => {
+    builder.addCase(logout.fulfilled, (state) => {
       localStorage.removeItem("token");
       localStorage.removeItem("expiresAt");
 

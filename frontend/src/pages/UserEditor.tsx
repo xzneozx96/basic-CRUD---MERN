@@ -1,17 +1,14 @@
-import { Form, Input, InputNumber, Button, DatePicker, Space } from "antd";
-
-import { useNavigate } from "react-router-dom";
-import { useParams } from "react-router-dom";
-
+import { Button, DatePicker, Form, Input, InputNumber, Space } from "antd";
+import moment from "moment";
 import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useStoreDispatch } from "../redux/app-redux";
 import {
   addNewUserAction,
-  updateUserAction,
   getSingleUserAction,
+  updateUserAction,
 } from "../redux/users-slice";
-import { useStoreDispatch } from "../redux/app-redux";
-
-import moment from "moment";
+import { openErrNotification } from "../utils/errorNoti";
 
 export const UserEditorPage = () => {
   const navigate = useNavigate();
@@ -22,8 +19,6 @@ export const UserEditorPage = () => {
   const { userID } = useParams();
 
   const [editMode, setEditMode] = useState(false);
-
-  const [error, setError] = useState(null);
 
   const [spinner, setSpinner] = useState(false);
 
@@ -45,7 +40,7 @@ export const UserEditorPage = () => {
         .catch((err_msg) => {
           setSpinner(false);
 
-          setError(err_msg);
+          openErrNotification(err_msg);
         });
     }
   }, [userID, form, dispatch]);
@@ -94,7 +89,9 @@ export const UserEditorPage = () => {
         navigate("/dashboard");
       }
     } catch (err_msg: any) {
-      setError(err_msg);
+      setSpinner(false);
+
+      openErrNotification(err_msg);
     }
   };
 
@@ -152,11 +149,6 @@ export const UserEditorPage = () => {
         <DatePicker format={dateFormat} />
       </Form.Item>
 
-      {error && (
-        <Form.Item label="Error">
-          <p style={{ color: "red", marginBottom: 0 }}>{error}</p>
-        </Form.Item>
-      )}
       <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
         <Space>
           <Button loading={spinner} type="primary" htmlType="submit">
